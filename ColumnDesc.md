@@ -54,5 +54,6 @@
 * a post-quantum key exchange algorithm. it's a KEM (Key Encapsulation Mechanism)
 
 **e1_alg_suite_mlkem1024:** From tthe same algorithm family as the previous one (mlkem768), but using a parameter set that targets a higher security level (roughly comparable to AES_256).
-e1_alg_suite_x25519: elliptic-curve Diffie-Hellman algorithm, a classical pre-quantum public key exchange algorithm
+
+**e1_alg_suite_x25519:** elliptic-curve Diffie-Hellman algorithm, a classical pre-quantum public key exchange algorithm
 
