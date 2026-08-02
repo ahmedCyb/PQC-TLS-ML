@@ -13,9 +13,15 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
+#define HS_clientHello 1
+#define HS_serverHello 2
+
+time_t timetmp;
 pcap_if_t *alldevs;
 char *interface = "enp10s0";
 const u_char *packet;
@@ -24,7 +30,10 @@ char err[PCAP_BUF_SIZE];
 struct bpf_program fp;
 bpf_u_int32 mask; /* subnet mask */
 bpf_u_int32 net;
-const char filter_exp[] = "tcp or udp";
+const char filter_exp[] = "port 443";
+u_char *connection[40000][35];
+u_int pktcount = 0;
+
 void printInterfaces() {
   int status;
 
@@ -54,70 +63,69 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header,
   const struct sniff_ethernet *ethernet;
   const struct sniff_ip *ip;
   const struct sniff_tcp *tcp;
-  const u_char *payload;
+  const struct sniff_tls *payload;
+  const struct Handshake *handshake;
+  u_int size_payload = 0;
+  u_int size_tlsHeader = 5;
+  char flag_str[64] = "N/A";
+  const char *protocol_str = "UNKNOWN";
 
   ethernet = (const struct sniff_ethernet *)(packet);
   ip = (const struct sniff_ip *)(packet + SIZE_ETHERNET);
 
   u_int size_ip = IP_HL(ip) * 4;
   if (size_ip < 20) {
-    fprintf(stderr, "Invalid IP header length: %u\n", size_ip);
     return;
   }
+  protocol_str = "TCP";
+  tcp = (const struct sniff_tcp *)(packet + SIZE_ETHERNET + size_ip);
+  u_int size_tcp = TH_OFF(tcp) * 4;
+  if (size_tcp < 20) {
+    fprintf(stderr, "Invalid TCP header length: %u\n", size_tcp);
+    return;
+  }
+  payload =
+      (const struct sniff_tls *)packet + SIZE_ETHERNET + size_ip + size_tcp;
+  size_payload = ntohs(ip->ip_len) - (size_ip + size_tcp);
 
-  u_int size_payload = 0;
-  char flag_str[64] = "N/A";
-  char src_port_str[8] = "N/A";
-  char dst_port_str[8] = "N/A";
+  get_tcp_flags_str(tcp->th_flags, flag_str, sizeof(flag_str));
 
-  const char *protocol_str = "UNKNOWN";
+  if (payload->tlsh_contt == 22) {
 
-  switch (ip->ip_p) {
-  case IPPROTO_TCP: {
-    protocol_str = "TCP";
-    tcp = (const struct sniff_tcp *)(packet + SIZE_ETHERNET + size_ip);
-    u_int size_tcp = TH_OFF(tcp) * 4;
-    if (size_tcp < 20) {
-      fprintf(stderr, "Invalid TCP header length: %u\n", size_tcp);
-      return;
+    handshake = ((const struct Handshake *)packet + SIZE_ETHERNET + size_ip +
+                 size_tcp + size_tlsHeader);
+
+    if (handshake->tlsh_hdsht == HS_serverHello) {
+      const struct Server_Hello *server_hello;
+
+      server_hello = (const struct Server_Hello *)handshake + 6;
     }
-    payload = packet + SIZE_ETHERNET + size_ip + size_tcp;
-    size_payload = ntohs(ip->ip_len) - (size_ip + size_tcp);
-
-    get_tcp_flags_str(tcp->th_flags, flag_str, sizeof(flag_str));
-
-    snprintf(src_port_str, sizeof(src_port_str), "%d", ntohs(tcp->th_sport));
-    snprintf(dst_port_str, sizeof(dst_port_str), "%d", ntohs(tcp->th_dport));
-    break;
-  }
-  case IPPROTO_UDP: {
-    protocol_str = "UDP";
-    const struct sniff_udp *udp =
-        (const struct sniff_udp *)(packet + SIZE_ETHERNET + size_ip);
-    snprintf(src_port_str, sizeof(src_port_str), "%d", ntohs(udp->uh_sport));
-    snprintf(dst_port_str, sizeof(dst_port_str), "%d", ntohs(udp->uh_dport));
-    size_payload = ntohs(udp->uh_ulen) - 8;
-    break;
-  }
-  case IPPROTO_ICMP:
-    protocol_str = "ICMP";
-    break;
-  default:
-    break;
   }
   FILE *fp = (FILE *)args;
   if (fp == NULL) {
     fprintf(stderr, "error: file pointer is NULL\n");
     return;
   }
+  char *scenario_id = "raf_test";
   setvbuf(fp, NULL, _IOLBF, 0);
   char src_ip[INET_ADDRSTRLEN];
   char dst_ip[INET_ADDRSTRLEN];
   strncpy(src_ip, inet_ntoa(ip->ip_src), INET_ADDRSTRLEN);
   strncpy(dst_ip, inet_ntoa(ip->ip_dst), INET_ADDRSTRLEN);
+  /* calculating enrtopy for header and paylaod */
+  u_int e4_entropy_h;
+  u_int e4_entropy_c;
+  // logic :
+  if (payload->tlsh_SessionIdlen)
+    time(&timetmp);
 
-  fprintf(fp, "%d,%s,%s, %s,%s,%s,%s\n", size_payload, src_ip, dst_ip,
-          src_port_str, dst_port_str, protocol_str, flag_str);
+  if (tcp->th_flags =) {
+  }
+  fprintf(fp, "%s,%s,%s, %s,%s,%d,%d\n", scenario_id, payload->tlsh_SessionId,
+          src_ip, dst_ip, dst_ip, ctime(&timetmp), payload->tlsh_ExtKey_Group,
+          payload->tlsh_hdlen, payload->tlsh_len, size_payload,
+
+  );
 
   fflush(fp);
 }
