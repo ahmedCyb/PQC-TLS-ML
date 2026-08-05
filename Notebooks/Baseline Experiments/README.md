@@ -17,3 +17,18 @@ the model took 0.86 seconds to train 0.01 secoonds to test, almost perfect resul
 
 Experiment 6 (LightGBM with RandomSearchCV):
 the model took 2 seconds to train 0.30 secoonds to test, amazing results on the normal class with 98 precision and 99 recall. 90 precision and 83 recall on the anomaly class. we need better balance between them.
+
+Experiment 7 (HistogramGradientBoosting with no feature enginnering):
+the model took 0.98 seconds to train 0.09 secoonds to test, almost perfect results on the normal class with 98 precision and 100 recall. 100 precision and 82 recall on the anomaly class. we need better balance between them.
+
+Experiment 8 (GradientBoosting with no feature enginnering):
+the model took 8.66 seconds to train 0.07 secoonds to test, almost perfect results on the normal class with 99 precision and 98 recall. 88 precision and 90 recall on the anomaly class. we got good balance between them.
+
+Experiment 9 (CatBoost with no feature enginnering):
+the model took 6.04 seconds to train 0.03 secoonds to test, almost perfect results on the normal class with 99 precision and 98 recall. 89 precision and 90 recall on the anomaly class. we got good balance between them.
+
+Experiment 10 (AdaBoost with no feature enginnering):
+the model took 4.69 seconds to train 0.41 secoonds to test, almost perfect results on the normal class with 100 precision and 97 recall. 83 precision and 100 recall on the anomaly class. we need better balance between them.
+
+Experiment 11 (Bagging with no feature enginnering):
+the model took 15.38 seconds to train 1.56 secoonds to test, almost perfect results on the normal class with 99 precision and 98 recall. 89 precision and 90 recall on the anomaly class. we got good balance between them.
