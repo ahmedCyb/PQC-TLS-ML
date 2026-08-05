@@ -1,1 +1,19 @@
 Use this folder to record experiments on the original dataset without feature engineering.
+
+Experiment 1 (Random Forest with no feature enginnering):
+the model took 1 second to train 0.20 secoond to test, amazing results on the normal class with 98 precision and 100 recall. 97 precision and 83 recall on the anomaly class. we need better balance between them.
+
+Experiment 2 (Extra Trees with no feature enginnering):
+the model took 0.95 seconds to train 0.27 secoonds to test, almost perfect results on the normal class with 98 precision and 99 recall. 94 precision and 83 recall on the anomaly class. we need better balance between them.
+
+Experiment 3 (XGBoost with no feature enginnering):
+the model took 0.19 seconds to train 0.01 secoonds to test, almost perfect results on the normal class with 98 precision and 100 recall. 100 precision and 82 recall on the anomaly class. we need better balance between them.
+
+Experiment 4 (LightGBM with no feature enginnering):
+the model took 2 seconds to train 0.28 secoonds to test, almost perfect results on the normal class with 98 precision and 100 recall. 97 precision and 83 recall on the anomaly class. we need better balance between them.
+
+Experiment 5 (XGBoost with Weighted scales):
+the model took 0.86 seconds to train 0.01 secoonds to test, almost perfect results on the normal class with 98 precision and 98 recall. 88 precision and 84 recall on the anomaly class. we need better balance between them.
+
+Experiment 6 (LightGBM with RandomSearchCV):
+the model took 2 seconds to train 0.30 secoonds to test, amazing results on the normal class with 98 precision and 99 recall. 90 precision and 83 recall on the anomaly class. we need better balance between them.
