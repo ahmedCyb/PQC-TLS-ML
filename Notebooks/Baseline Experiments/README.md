@@ -1,5 +1,3 @@
-Use this folder to record experiments on the original dataset without feature engineering.
-
 Experiment 1 (Random Forest with no feature enginnering):
 the model took 1 second to train 0.20 secoond to test, amazing results on the normal class with 98 precision and 100 recall. 97 precision and 83 recall on the anomaly class. we need better balance between them. [Chech out the full notebook](01_random_forest_original.ipynb)
 
