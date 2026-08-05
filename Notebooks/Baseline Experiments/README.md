@@ -25,7 +25,7 @@ Experiment 8 (GradientBoosting with no feature enginnering):
 the model took 8.66 seconds to train 0.07 secoonds to test, almost perfect results on the normal class with 99 precision and 98 recall. 88 precision and 90 recall on the anomaly class. we got good balance between them. [Chech out the full notebook](gradientboosting_original.ipynb)
 
 Experiment 9 (CatBoost with no feature enginnering):
-the model took 6.04 seconds to train 0.03 secoonds to test, almost perfect results on the normal class with 99 precision and 98 recall. 89 precision and 90 recall on the anomaly class. we got good balance between them. [Chech out the full notebook](41_catboost_original (1).ipynb)
+the model took 6.04 seconds to train 0.03 secoonds to test, almost perfect results on the normal class with 99 precision and 98 recall. 89 precision and 90 recall on the anomaly class. we got good balance between them. [Chech out the full notebook](41_catboost_original%(1).ipynb)
 
 Experiment 10 (AdaBoost with no feature enginnering):
 the model took 4.69 seconds to train 0.41 secoonds to test, almost perfect results on the normal class with 100 precision and 97 recall. 83 precision and 100 recall on the anomaly class. we need better balance between them. [Chech out the full notebook](adaboost_original.ipynb)
