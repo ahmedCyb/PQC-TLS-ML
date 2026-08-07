@@ -1,7 +1,6 @@
 #include "packet_seq.h"
 #include <alloca.h>
 #include <arpa/inet.h>
-#include <cmath>
 #include <errno.h>
 #include <fcntl.h>
 #include <math.h>
@@ -134,7 +133,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header,
     client_hello = (const struct Client_Hello *)handshake;
 
     if (server_hello->tlsh_ExtSup_tls_version == TLS_13) {
-
+      connection[12] = (u_char *)"False";
       if (handshake->tlsh_hdsht == HS_serverHello) {
         end_flow = clock();
         flow_duration = (double)(end_flow - start_flow) / CLOCKS_PER_SEC;
@@ -164,6 +163,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header,
 
         connection[6] = (u_char *)tmp->Keyshare.tlsh_Client_Key_Share;
         connection[8] = (u_char *)client_hello->tlsh_rclen;
+        connection[18] = (u_char *)server_hello->tlsh_ExtSup_tls_version;
       }
     }
     if (server_hello->tlsh_ExtSup_tls_version < TLS_13) {
@@ -171,6 +171,8 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header,
       Server_key_exchange = (const struct Server_key_exchange *)handshake;
       connection[11] = (u_char *)Server_key_exchange->tlsh2_sig_alg;
       connection[12] = (u_char *)"True";
+      connection[20] = (u_char *)server_hello->tlsh_hdver;
+      connection[21] = (u_char *)server_hello->tlsh_Ciphersuit;
     }
   } else if (handshake->tlsh_hdsht == APPLICATOIN) {
     app_payload = (const struct Application *)payload;
@@ -178,6 +180,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header,
       payload_size += sizeof(body_payload);
       memcpy(body_payload + payload_size, app_payload, sizeof(app_payload));
     }
+    connection[19] = (u_char *)"Success";
   }
   FILE *fp = (FILE *)args;
   if (fp == NULL) {
@@ -196,11 +199,13 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header,
   strncpy(dst_ip, inet_ntoa(ip->ip_dst), INET_ADDRSTRLEN);
 
   // logic :
-  if (payload->tlsh_SessionIdlen)
-    time(&timetmp);
-  fprintf(fp, "%s,%s,%s, %s,%s,%d,%d\n", scenario_id, payload->tlsh_SessionId,
-          src_ip, dst_ip, dst_ip, ctime(&timetmp), payload->tlsh_ExtKey_Group,
-          payload->tlsh_hdlen, payload->tlsh_len, size_payload, );
+  fprintf(
+      fp,
+      "%s,%s,%s, %s,%s,%s ,%s,%s,%s, %s,%s,%s,  %d,%d,%d ,%d,%d,%d ,%s,%s\\n",
+      scenario_id, connection[1], src_ip, dst_ip, dst_ip, connection[4],
+      connection[5], connection[6], connection[7], connection[8], connection[9],
+      totalBytes, connection[11], connection[12], e4_entropy_h, e4_entropy_c,
+      flow_duration, connection[19], connection[20], connection[21]);
   fflush(fp);
 }
 void establishConnetion() {
